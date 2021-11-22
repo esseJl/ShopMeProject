@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="index::meta"></th:block>
+
+    <title>users-list</title>
+</head>
+<body dir="rtl">
+<div>
+
+    <div th:replace="index::navbar"></div>
+
+
+    <div class="container-fluid">
+        <div class="border border-primary  p-3">
+            <form th:object="${role}" th:action="@{/roles/delete}" method="post">
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-6 border-secondary rounded">
+                        <div class="col-12">
+                            <input th:field="*{name}" type="hidden"/>
+                            <input th:field="*{description}" type="hidden"/>
+                            <input type="hidden" th:field="*{roleUUID}"/>
+                        </div>
+                        <!---->
+                        <div class="container px-4 py-5" id="hanging-icons">
+                            <h2 class="pb-2 border-bottom text-danger">Are you sure to delete this role?</h2>
+                            <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+                                <div class="col-12 d-flex align-items-center">
+                                    <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
+                                        <svg class="bi" width="1em" height="1em">
+                                            <use xlink:href="#toggles2"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-primary" th:text="${role.name}">Featured title</h2>
+                                        <p th:text="${role.description}">Some example text. Some example text.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 border-secondary rounded">
+                        <div class="container px-4 py-5">
+                            <div class="pb-2 border-bottom" th:if="${!usersList.isEmpty()}">
+                                <p class="alert alert-light">This users have this [[${role.name}]]
+                                    if you delete the role these users no longer associated with role
+                                    if you want to delete users that associated with this role
+                                    ,just checked the box of user
+                                </p>
+                            </div>
+                            <div class="pb-2 border-bottom" th:if="${usersList.isEmpty()}">
+                                <h6> there are not any user that has this
+                                    <span class="text-secondary">[[${role.name}]] </span>
+                                </h6>
+                            </div>
+
+                            <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+                                <div class="col-12 d-flex align-items-center">
+                                    <div class="input-group border-secondary  rounded mt-4 p-5 col-12">
+                                        <th:block th:each="tempUser:${usersList}">
+                                            <div class="form-check col-12 ">
+                                                <label class="form-check-label" th:text="${tempUser.email}">
+                                                    Default checkbox
+                                                </label>
+                                                <input class="form-check-input" type="checkbox" name="users"
+                                                       th:value="${tempUser.userUUID}"/>
+                                                <div class="text-sm-start">
+                                                    <small class="text-primary"
+                                                           th:text="${tempUser.lastName+' '+tempUser.firstName}"></small>
+                                                </div>
+                                            </div>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <input class="btn col-12 text-center btn-danger" type="submit" value="delete"/>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+<th:block th:replace="index::script"></th:block>
+</html>

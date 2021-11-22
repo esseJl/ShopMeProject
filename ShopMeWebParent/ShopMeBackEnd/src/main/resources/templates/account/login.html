@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:fragment="meta">
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1,minimum-scale=1">
+
+        <!-- Bootstrap CSS -->
+        <link href="/webjars/bootstrap/5.0.2/css/bootstrap.rtl.min.css" rel="stylesheet" type="text/css"
+              th:href="@{/webjars/bootstrap/5.0.2/css/bootstrap.rtl.min.css}">
+
+        <!--fontawesome-->
+        <!--load all styles -->
+        <link href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"
+              th:href="@{/webjars/font-awesome/4.7.0/css/font-awesome.min.css}">
+
+
+    </th:block>
+    <title>login</title>
+</head>
+<body dir="rtl">
+
+<br/>
+<br/>
+<div class="container">
+    <h4 class="text-center">Welcome Back</h4>
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="login-form  mt-4 p-4 border-secondary shadow-lg  bg-body rounded">
+                <form th:action="@{/login}" method="POST" enctype="utf8">
+
+                    <h1 class="text-center">Please Sign In</h1>
+
+                    <div class="fa fa-user text-secondary fa-3x text-center"></div>
+
+
+                    <div>
+                        <div th:if="${param.error}">
+                            <h1 class="alert alert-danger" th:text="${param.error}">
+                                Invalid username and password.
+                            </h1>
+                        </div>
+                        <div th:if="${param.message}">
+                            <h1 th:text="${param.message}"></h1>
+                        </div>
+                        <div th:if="${param.logout}">
+                            <h1>You have been logged out.</h1>
+                        </div>
+                    </div>
+
+
+                    <div class="form-floating mb-3">
+                        <input name="email" type="text" class="form-control" id="floatingInput"
+                               placeholder="name@example.com">
+                        <label for="floatingInput">Email address</label>
+                    </div>
+                    <div class="form-floating">
+                        <input name="password" type="password" class="form-control" id="floatingPassword"
+                               placeholder="Password">
+                        <label for="floatingPassword">Password</label>
+                    </div>
+                    <br/>
+                    <div class="captcha" th:object="${user}">
+                        <div class="row">
+                            <div class="col-2">
+                                <label>CAPTCHA</label>
+                            </div>
+                            <div class="col-4">
+                                <img th:src="*{'data:realCaptcha/jpg;base64,'+ realCaptcha}"/>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-2">
+                                <label>ENTER CAPTCHA</label>
+                            </div>
+                            <div class="col-4">
+                                <input type="hidden" th:field="*{hiddenCaptcha}"/>
+                                <input type="text" th:field="*{captcha}" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="d-grid gap-2 col-6 mx-auto">
+                        <button type="submit" class="btn btn-secondary ">Login</button>
+                    </div>
+                </form>
+                <hr class="mt-4">
+                <div class="col-12">
+                    <p class="text-center mb-0">Have not account yet? <a href="#">Signup</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

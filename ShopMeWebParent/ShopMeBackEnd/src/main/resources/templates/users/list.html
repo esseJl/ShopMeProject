@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="index::meta"></th:block>
+
+    <title>users-list</title>
+</head>
+<body dir="rtl">
+<div>
+
+    <div th:replace="index::navbar"></div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/users/new}">
+                            <span class="fa fa-plus "></span>
+                            <span class="fa fa-2x fa-user" data-bs-toggle="tooltip"
+                                  title="create new user"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" th:href="@{/users/export/excel}">
+                            <span class="fa fa-arrow-right text-success"></span>
+                            <span class="fa fa-file-excel-o fa-2x text-success"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <span class="fa fa-arrow-right text-danger"></span>
+                            <span class="fa fa-2x fa-file-pdf-o text-danger"></span>
+                        </a>
+                    </li>
+                </ul>
+                <form class="d-flex p-1 m-1" th:action="@{/users/list}" method="get">
+                    <input name="keyword" class="form-control me-2" type="search" placeholder="Search"
+                           aria-label="Search" th:value="${keyword}">
+                    <input type="hidden" name="sort" th:value="${sort}">
+                    <input type="hidden" name="order" th:value="${order}">
+                    <button class="btn btn-sm btn-outline-success" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+
+        <div class="alert alert-success" th:if="${savedUser}">
+            <p>new user with E-mail ` <span th:text="${savedUser?.getEmail()}"></span>
+                and <span th:text="${savedUser?.getFirstName}"></span>
+                <span th:text="${savedUser?.getLastName}"></span>
+                successfully registered.
+            </p>
+        </div>
+
+        <p class="alert alert-success" th:if="${message!=null}" th:text="${message}"></p>
+
+        <div class="border border-secondary rounded p-3 table-responsive">
+            <table class="table ">
+                <thead class="table-dark">
+                <tr>
+
+                    <td>
+                        <a th:if="${!sort.equals('email')}" class="text-white fw-bold"
+                           th:href="@{/users/list(page=${(usersList?.number)},size=${usersList?.size},sort=${'email'},order=${order},keyword=${keyword})}">Email</a>
+                        <span th:if="${sort.equals('email')}">Email</span>
+                        <span th:if="${sort.equals('email')}">
+                            <a th:if="${order.equals('asc')}"
+                               th:href="@{/users/list(page=${(usersList?.number)},size=${usersList?.size},sort=${sort},order=${'desc'},keyword=${keyword})}"><span
+                                    class="fa fa-sort-up"></span></a>
+                            <a th:if="${order.equals('desc')}"
+                               th:href="@{/users/list(page=${(usersList?.number)},size=${usersList?.size},sort=${sort},order=${'asc'},keyword=${keyword})}"><span
+                                    class="fa fa-sort-down"></span></a>
+                        </span>
+                    </td>
+
+                    <td>
+                        <a th:if="${!sort.equals('firstName')}" class="text-white fw-bold"
+                           th:href="@{/users/list(page=${(usersList?.number)},size=${usersList?.size},sort=${'firstName'},order=${order},keyword=${keyword})}">FirstName</a>
+                        <span th:if="${sort.equals('firstName')}">FirstName</span>
+                        <span th:if="${sort.equals('firstName')}">
+                            <a th:if="${order.equals('asc')}"
+                               th:href="@{/users/list(page=${(usersList?.number)},size=${usersList?.size},sort=${sort},order=${'desc'},keyword=${keyword})}"><span
+                                    class="fa fa-sort-up"></span></a>
+                            <a th:if="${order.equals('desc')}"
+                               th:href="@{/users/list(page=${(usersList?.number)},size=${usersList?.size},sort=${sort},order=${'asc'},keyword=${keyword})}"><span
+                                    class="fa fa-sort-down"></span></a>
+                        </span>
+                    </td>
+                    <td>
+                        <a th:if="${!sort.equals('lastName')}" class="text-white fw-bold"
+                           th:href="@{/users/list(page=${(usersList?.number)},size=${usersList?.size},sort=${'lastName'},order=${order},keyword=${keyword})}">LastName</a>
+                        <span th:if="${sort.equals('lastName')}">LastName</span>
+                        <span th:if="${sort.equals('lastName')}">
+                            <a th:if="${order.equals('asc')}"
+                               th:href="@{/users/list(page=${(usersList?.number)},size=${usersList?.size},sort=${sort},order=${'desc'},keyword=${keyword})}"><span
+                                    class="fa fa-sort-up"></span></a>
+                            <a th:if="${order.equals('desc')}"
+                               th:href="@{/users/list(page=${(usersList?.number)},size=${usersList?.size},sort=${sort},order=${'asc'},keyword=${keyword})}"><span
+                                    class="fa fa-sort-down"></span></a>
+                        </span>
+                    </td>
+                    <td>Image</td>
+                    <td>Roles</td>
+                    <td>Enabled</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </thead>
+
+                <tbody th:if="${!usersList.isEmpty()}">
+                <tr th:each="user:${usersList?.content}">
+                    <td th:text="${user?.email}">email</td>
+                    <td th:text="${user?.firstName}">firstName</td>
+                    <td th:text="${user?.lastName}">lastName</td>
+
+                    <td th:if="${user?.image==null}">
+                        <img width="40px" height="30px" src="../../static/images/user-default.png"
+                             th:src="@{/images/user-default.png}">
+                    </td>
+                    <td th:if="${user?.image!=null}">
+                        <img width="40px" height="30px"
+                             th:src="@{/image/{imageId} (imageId=${user?.getImage()?.mediaUUID})}">
+                    </td>
+
+                    <td>
+                        <span th:each="role:${user?.roles}"><span th:text="${role?.name}"></span>,</span>
+                    </td>
+                    <td th:text="${user?.enabled}">enabled</td>
+                    <td>
+                        <a th:href="@{/users/update/{userId}(userId=${user?.userUUID})}">
+                            <span class="fa fa-edit"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <a class="deleteButton" th:id="${user?.userUUID}" th:csrf="${_csrf.token}"
+                           th:href="@{/users/find}">
+                            <span class="fa fa-trash text-danger"></span>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!--pagination-->
+            <nav aria-label="Page navigation example" th:if="${totalPage>1}">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" th:classappend="${(number==0)?'disabled':''}">
+                        <a th:href="@{/users/list(size=${usersList?.size},sort=${sort},order=${order},keyword=${keyword})}"
+                           class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">first</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${usersList.hasPrevious()? '':'disabled'}">
+                        <a th:href="@{/users/list(page=${(usersList?.number)-1},size=${usersList?.size},sort=${sort},order=${order},keyword=${keyword})}"
+                           class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link" th:text="${number+1}"></span>
+                    </li>
+
+                    <li class="page-item" th:classappend="${usersList.hasNext()? '':'disabled'}">
+                        <a th:href="@{/users/list(page=${(usersList?.number)+1},size=${usersList?.size},sort=${sort},order=${order},keyword=${keyword})}"
+                           class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${((totalPage)-1)==number?'disabled':''}">
+                        <a th:href="@{/users/list(page=${(totalPage)-1},size=${usersList?.size},sort=${sort},order=${order},keyword=${keyword})}"
+                           class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">last([[${totalPage}]])</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!--pagination end-->
+        </div>
+
+
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form th:action="@{/users/delete}" th:object="${user}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Are you sure?</h5>
+                    <span class="fa fa-trash fa-2x text-danger float-end"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="border border-secondary rounded m-2 p-2">
+
+                        <div class="text-lg-center">
+                            <p class="text-danger col">you are going to delete user</p>
+                        </div>
+                        <input type="hidden" th:field="*{userUUID}" class="form-control-plaintext"/>
+
+                        <div class="mb-3 row">
+                            <label for="staticEmail" class="col-sm-3 col-form-label">Email</label>
+                            <div class="col-sm-9">
+                                <input type="text" th:field="*{email}" readonly class="form-control-plaintext"
+                                       id="staticEmail"/>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row">
+                            <label for="staticLastName" class="col-sm-3 col-form-label">Last Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" th:field="*{lastName}" readonly class="form-control-plaintext"
+                                       id="staticLastName"/>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row">
+                            <label for="staticFirstName" class="col-sm-3 col-form-label">First Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" th:field="*{firstName}" readonly class="form-control-plaintext"
+                                       id="staticFirstName"/>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+        </form>
+    </div>
+</div>
+</div>
+
+</body>
+<th:block th:replace="index::script"></th:block>
+</html>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        $('.deleteButton').on('click', function (event) {
+            event.preventDefault();
+            //alert();
+            let myModal = new bootstrap.Modal($('#confirmModal'));
+            //let url = $("input[name='_csrf']").val();
+            let url = $(this).attr('href');
+            let userId = $(this).attr('id');
+            let csrf = $(this).attr('csrf');
+
+            let params = {id: userId, _csrf: csrf};
+
+            $.post(url, params).done(function (data) {
+                $("input[type=hidden][name=userUUID]").val(data.userUUID);
+                $("input[type=text][name=email]").val(data.email);
+                $("input[type=text][name=firstName]").val(data.firstName);
+                $("input[type=text][name=lastName]").val(data.lastName);
+            });
+
+            myModal.show();
+        });
+    });
+</script>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="index::meta"></th:block>
+
+    <title>users-list</title>
+</head>
+<body dir="rtl">
+<div>
+
+    <div th:replace="index::navbar"></div>
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-1"></div>
+            <div class="col-md-6 col-sm-12 col-10 border border-secondary  rounded p-4 m-4">
+                <form th:object="${role}" th:action="@{/roles/save}" method="post">
+
+
+                    <div class="form-floating p-1 m-1">
+                        <input th:field="*{name}"
+                               type="text" class="form-control check-role-exist" placeholder="name"
+                               aria-label="name"
+                               aria-describedby="name-addon">
+                        <label class="text-primary check-role-exist-label" th:for="*{name}">Name</label>
+                        <p class="text-danger" th:each="error: ${#fields.errors('name')}"
+                           th:text="${error}">Validation error</p>
+                        <p class="text-danger" th:text="${roleExistError}">
+                            this role already exist
+                        </p>
+                    </div>
+
+                    <div class="form-floating p-1 m-1">
+                        <input th:field="*{description}"
+                               type="text" class="form-control" placeholder="description" aria-label="description"
+                               aria-describedby="description-addon">
+                        <label class="text-primary" th:for="*{description}">Description</label>
+                        <p class="text-danger" th:each="error: ${#fields.errors('description')}"
+                           th:text="${error}">Validation error</p>
+                    </div>
+
+                    <div class="form-floating p-1 m-1">
+                        <div class="row">
+                            <input type="submit" value="Save" class="m-1 btn col-sm-12 col-md-6 btn-success"/>
+                            <input type="button" value="Cancel" id="buttonCancel"
+                                   class="m-1 btn col-sm-12 col-md-6 btn-secondary"/>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="col-md-3 col-1"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+<th:block th:replace="index::script"></th:block>
+<script>
+    $(document).ready(function () {
+        // imp cancel button
+        $('#buttonCancel').on('click', function () {
+            window.location = "[[@{/roles/list}]]";
+        });
+
+        //imp checkRoleNameValid
+        /*
+        $('.check-role-exist').focusout(function () {
+            validate();
+        });
+         //imp checkRoleNameValid
+        $('.check-role-exist').change(function () {
+            validate();
+        });
+         */
+        $('.check-role-exist').on("keyup change", function () {
+            validate();
+        });
+
+
+        function validate() {
+            let name = $('.check-role-exist').val();
+            if (name.length >= 3) {
+                let url = "[[@{/roles/check-valid}]]";
+                let csrf = $("input[name='_csrf']").val();
+                let params = {roleName: name, _csrf: csrf};
+
+                // send postRequest for...
+                $.post(url, params, function (response) {
+                    //alert("response from server : " + response);
+                    if (response == 'invalid' || response == 'role.already.exist') {
+                        $('.check-role-exist').removeClass('is-valid');
+                        $('.check-role-exist').addClass('is-invalid');
+                        $('.check-role-exist-label').text(response + ' Name');
+                    } else if (response == 'valid') {
+                        $('.check-role-exist').removeClass('is-invalid');
+                        $('.check-role-exist').addClass('is-valid');
+                        $('.check-role-exist-label').text('Name');
+                    } else {
+                        $('.check-role-exist-label').text('can not check Name with server');
+                    }
+                });
+            } else {
+                $('.check-role-exist').removeClass('is-valid');
+                $('.check-role-exist').addClass('is-invalid');
+                $('.check-role-exist-label').text('invalid Name');
+            }
+        }
+
+        //@TODO imp valid role description with jquery
+
+
+    });
+</script>
+</html>

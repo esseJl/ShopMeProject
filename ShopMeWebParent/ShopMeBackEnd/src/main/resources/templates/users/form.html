@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="index::meta"></th:block>
+
+    <title>users-list</title>
+</head>
+<body dir="rtl">
+<div>
+
+    <div th:replace="index::navbar"></div>
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 col-1"></div>
+            <div class="col-md-8 col-sm-12 col-10 p-4 m-2">
+                <form th:object="${user}" th:action=" ${title.equals('new')} ? @{/users/save} : @{/users/update} "
+                      method="post" enctype="multipart/form-data">
+
+
+                    <div class="card text-center m-4">
+                        <div class="card-header">
+                            User
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title"
+                                th:text="${title.equals('new')? 'Create new User':'Update User'}">Create new User</h5>
+
+                            <!--field id-->
+                            <input type="hidden" class="uuidID" th:field="*{userUUID}">
+                            <!--field email-->
+                            <div class="form-floating p-1 m-1">
+                                <input th:field="*{email}"
+                                       type="text" class="form-control check-email-exist EmailFieldVisible"
+                                       placeholder="email"
+                                       aria-label="email"
+                                       aria-describedby="email-addon"
+                                       th:disabled="${(title.equals('update')) && (#fields.errors('email').isEmpty())}"/>
+                                <label class="check-email-exist-label">E-mail</label>
+                                <p class="text-danger" th:each="error: ${#fields.errors('email')}"
+                                   th:text="${error}">Validation error</p>
+                                <p class="text-danger" th:text="${emailAlreadyExist}">
+                            </div>
+
+
+                            <div th:if="${!title.equals('new')}">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input changeEmail" type="checkbox" id="inlineCheckboxEmail"
+                                           value="option1">
+                                    <label class="form-check-label" for="inlineCheckboxEmail">also Change Email</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input changePassword" type="checkbox"
+                                           id="inlineCheckboxPassword"
+                                           value="option2"/>
+                                    <label class="form-check-label" for="inlineCheckboxPassword">also Change
+                                        Password</label>
+                                </div>
+                            </div>
+
+                            <!--field password-->
+                            <div>
+
+                                <div class="form-floating p-1 m-1">
+                                    <input th:field="*{password}"
+                                           type="password" class="form-control passwordFieldVisible"
+                                           placeholder="password"
+                                           aria-label="password"
+                                           th:disabled="${(title.equals('update')) && (#fields.errors('password').isEmpty())}"/>
+                                    <label>Password</label>
+                                    <p class="text-danger" th:each="error: ${#fields.errors('password')}"
+                                       th:text="${error}">Validation error</p>
+                                </div>
+
+                                <div class="form-floating p-1 m-1">
+                                    <input th:field="*{matchingPassword}"
+                                           type="password" class="form-control passwordFieldVisible"
+                                           placeholder="matchingPassword"
+                                           aria-label="matchingPassword"
+                                           th:disabled="${(title.equals('update')) && (#fields.errors('password').isEmpty())}"/>
+                                    <label>Confirm Password</label>
+                                    <p class="text-danger" th:each="error: ${#fields.errors('matchingPassword')}"
+                                       th:text="${error}">Validation error</p>
+                                    <p class="text-danger" th:text="${notMatchPassword}">
+                                </div>
+                            </div>
+                            <!--field firstName-->
+                            <div class="form-floating p-1 m-1">
+                                <input th:field="*{firstName}"
+                                       type="text" class="form-control" placeholder="firstName" aria-label="firstName"/>
+                                <label>first name</label>
+                                <p class="text-danger" th:each="error: ${#fields.errors('firstName')}"
+                                   th:text="${error}">Validation error</p>
+                            </div>
+
+                            <!--field lastName-->
+                            <div class="form-floating p-1 m-1">
+                                <input th:field="*{lastName}"
+                                       type="text" class="form-control" placeholder="lastName" aria-label="lastName"
+                                       aria-describedby="lastName-addon">
+                                <label>last name</label>
+                                <p class="text-danger" th:each="error: ${#fields.errors('lastName')}"
+                                   th:text="${error}">Validation error</p>
+                            </div>
+
+                            <!--field roles-->
+                            <div class="input-group p-1 m-1">
+                                <div class="border border-secondary col-12 rounded p-2">
+                                    <th:block th:each="tempRole:${rolesList}">
+                                        <hr/>
+                                        <div class="form-check col-12">
+                                            <label class="form-check-label" th:text="${tempRole.name}">
+                                                Default checkbox
+                                            </label>
+                                            <input class="form-check-input" type="checkbox" th:field="*{roles}"
+                                                   th:value="${tempRole.id}" th:checked="${false}"/>
+                                            <div class="text-sm-start">
+                                                <small class="text-primary" th:text="${tempRole.description}"></small>
+                                            </div>
+                                        </div>
+                                    </th:block>
+                                </div>
+                            </div>
+
+                            <div class="row input-group">
+                                <div class="mb-3 mt-3 mx-4 my-2 col-6 ">
+                                    <label for="userImageFile" class="form-label">pick an image for user
+                                        profile </label>
+                                    <input name="userImage" class="form-control form-control-sm" id="userImageFile"
+                                           type="file"/>
+                                </div>
+                                <div class="col-4">
+                                    <th:block th:if="${user?.getImage()==null}">
+                                        <img id="userImageProfile" class="rounded" height="90px"
+                                             width="120px"
+                                             src="../../static/images/user-default.png"
+                                             th:src="@{/images/user-default.png}"/>
+                                    </th:block>
+                                    <th:block th:if="${user?.getImage()!=null}">
+                                        <img id="userImageProfile" class="rounded" height="90px"
+                                             width="120px"
+                                             src="../../static/images/user-default.png"
+                                             th:src="@{/image/{imageId}(imageId=${user?.getImage()?.getMediaUUID()})}"/>
+                                    </th:block>
+
+                                </div>
+                                <p th:if="${imageError!=null}" th:text="${imageError}"></p>
+                            </div>
+
+                        </div>
+
+                        <!--card footer-->
+
+                        <div class="card-footer text-muted">
+                            <!--field enabled-->
+                            <div class="form-check col-12 align-content-center p-1 m-1">
+                                <input class="form-check-input  p-1 m-1" type="checkbox"
+                                       th:field="${user.enabled}"
+                                       th:value="${user.enabled}" th:checked="${user.enabled}"/>
+                                <label class="form-check-label">
+                                    Enabled
+                                </label>
+                                <div class="text-sm-start">
+                                    <small class="text-primary"> if you do not enable user that user can not enable to
+                                        use
+                                        services</small>
+                                </div>
+                            </div>
+                            <!--field accountNonExpired-->
+                            <div class="form-check col-12 align-content-center p-1 m-1">
+                                <input class="form-check-input  p-1 m-1" type="checkbox"
+                                       th:field="${user.accountNonExpired}"
+                                       th:value="${user.accountNonExpired}" th:checked="${user.accountNonExpired}"/>
+                                <label class="form-check-label">
+                                    accountNonExpired
+                                </label>
+                                <div class="text-sm-start">
+                                    <small class="text-primary"> if you do not enable user that user can not enable to
+                                        use
+                                        services</small>
+                                </div>
+                            </div>
+                            <!--field accountNonLocked-->
+                            <div class="form-check col-12 align-content-center p-1 m-1">
+                                <input class="form-check-input  p-1 m-1" type="checkbox"
+                                       th:field="${user.accountNonLocked}"
+                                       th:value="${user.accountNonLocked}" th:checked="${user.accountNonLocked}"/>
+                                <label class="form-check-label">
+                                    accountNonLocked
+                                </label>
+                                <div class="text-sm-start">
+                                    <small class="text-primary"> if you do not enable user that user can not enable to
+                                        use
+                                        services</small>
+                                </div>
+                            </div>
+                            <!--field credentialsNonExpired-->
+                            <div class="form-check col-12 align-content-center p-1 m-1">
+                                <input class="form-check-input  p-1 m-1" type="checkbox"
+                                       th:field="${user.credentialsNonExpired}"
+                                       th:value="${user.credentialsNonExpired}"
+                                       th:checked="${user.credentialsNonExpired}"/>
+                                <label class="form-check-label">
+                                    credentialsNonExpired
+                                </label>
+                                <div class="text-sm-start">
+                                    <small class="text-primary"> if you do not enable user that user can not enable to
+                                        use
+                                        services</small>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <input type="submit" value="Save"
+                                       class="m-1 btn col-sm-12 col-md-5 btn-success"/>
+                                <input type="button" value="Cancel" id="buttonCancel"
+                                       class="m-1 btn col-sm-12 col-md-5 btn-secondary"/>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="col-md-2 col-1"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+<th:block th:replace="index::script"></th:block>
+<script>
+    $(document).ready(function () {
+
+        $('#userImageFile').change(function () {
+
+            let file = this.files[0];
+            let fileSize = file.size;
+            if (fileSize > 1048576) {
+                this.setCustomValidity("You must chose an image less than 1MB.");
+                this.reportValidity();
+                //$('#userImageFile').val(null);
+            } else {
+                this.setCustomValidity("");
+                changeUserImageProfile(this);
+            }
+
+        });
+
+        function changeUserImageProfile(fileInput) {
+            let file = fileInput.files[0];
+
+            let reader = new FileReader();
+
+            reader.onload = function () {
+                $('#userImageProfile').attr('src', reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // imp cancel button
+        $('#buttonCancel').on('click', function () {
+            window.location = "[[@{/users/list}]]";
+        });
+
+        $('.changePassword').change(function () {
+            if ($(this).is(":checked")) {
+                $('.passwordFieldVisible').attr('disabled', false);
+            } else {
+                $('.passwordFieldVisible').attr('disabled', true);
+            }
+
+            $('.changePassword').val($(this).is(':checked'));
+        });
+
+        $('.changeEmail').change(function () {
+            if ($(this).is(":checked")) {
+                $('.EmailFieldVisible').attr('disabled', false);
+            } else {
+                $('.EmailFieldVisible').attr('disabled', true);
+            }
+
+            $('.changeEmail').val($(this).is(':checked'));
+        });
+
+        $('.check-email-exist').on("change", function () {
+            validate();
+        });
+
+
+        function validate() {
+            let email = $('.check-email-exist').val();
+            if (email.length >= 9) {
+                let url = "[[@{/users/check-email}]]";
+                let csrf = $("input[name='_csrf']").val();
+                let userId = $('.uuidID').val();
+                let params = {id: userId, email: email, _csrf: csrf};
+
+                // send postRequest for...
+                $.post(url, params, function (response) {
+                    //alert("response from server : " + response);
+                    if (response == 'invalid' || response == 'email.already.exist') {
+                        $('.check-email-exist').removeClass('is-valid');
+                        $('.check-email-exist').addClass('is-invalid');
+                        $('.check-email-exist-label').text(response + ' E-mail');
+                    } else if (response == 'valid') {
+                        $('.check-email-exist').removeClass('is-invalid');
+                        $('.check-email-exist').addClass('is-valid');
+                        $('.check-email-exist-label').text('E-mail');
+                    } else {
+                        $('.check-email-exist-label').text('can not check Name with server');
+                    }
+                });
+            } else {
+                $('.check-email-exist').removeClass('is-valid');
+                $('.check-email-exist').addClass('is-invalid');
+                $('.check-email-exist-label').text('invalid E-mail');
+            }
+        }
+
+
+    });
+</script>
+</html>
